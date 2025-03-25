@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Productos</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="choices.min.css">
+  <style>
+    .hero {
+      position: relative;
+      height: 60vh;
+      background: url('https://via.placeholder.com/1920x1080') center/cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+    }
+    .hero-content {
+      position: relative;
+      max-width: 600px;
+    }
+  </style>
+</head>
+<body>
+
+  
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container header-container">
+      <div class="brand">
+        <h1 class="logo"><a href="/">Tu marca aquí</a></h1>
+      </div>
+      <div class="search-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input id="search-input" type="text" placeholder="Buscar productos…">
+      </div>
+    </div>
+  </header>
+
+
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content container">
+      <h1 class="hero-title"></h1>
+      <p class="hero-desc"></p>
+      <!-- <a href="#" class="hero-btn"></a> -->
+    </div>
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
+        <path fill="var(--bg-white)" d="M0,0 C360,80 1080,0 1440,80 L1440,80 L0,80 Z"/>
+      </svg>
+    </div>
+  </section>
+  
+
+
+
+  <main class="container main-content">
+    <div id="loading-indicator" class="loading-indicator">
+      <div class="spinner"></div>
+      <p>Cargando productos...</p>
+    </div>
+
+    <div id="category-filters" class="category-filters" style="display:none">
+      <!-- <h2 class="section-title">Categorías</h2> -->
+      <div id="category-buttons" class="category-buttons"></div>
+      <button id="reset-filter" class="reset-filter-button">
+        <i class="fas fa-times"></i> Mostrar todos
+      </button>
+    </div>
+
+    <div class="products-section">
+      <h2 class="section-title">Productos</h2>
+      <div id="products-container" class="products-container"></div>
+    </div>
+
+    <!-- PRODUCT DETAIL MODAL -->
+    <div id="product-modal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <article class="modal-content" role="dialog" aria-modal="true">
+        <button class="modal-close" aria-label="Cerrar">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="modal-grid">
+          <div class="modal-gallery-container">
+            <figure class="modal-gallery">
+              <img id="modal-image" src="/placeholder.svg" alt="">
+              <nav class="modal-nav">
+                <button id="prev-img" aria-label="Imagen anterior">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <button id="next-img" aria-label="Imagen siguiente">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </nav>
+            </figure>
+            <div class="modal-thumbnails"></div>
+          </div>
+          <section class="modal-info">
+            <span class="product-category-badge" id="modal-category"></span>
+            <h2 id="modal-name" class="modal-product-title"></h2>
+            <p class="modal-price" id="modal-price"></p>
+            <div class="modal-description">
+              <p id="modal-desc"></p>
+            </div>
+            <div id="modal-variants" class="variant-container"></div>
+            <div class="modal-footer">
+              <div class="quantity-selector">
+                <label for="modal-quantity">Cantidad:</label>
+                <div class="quantity-controls">
+                  <button class="quantity-btn" onclick="adjustQuantity(-1)">-</button>
+                  <input id="modal-quantity" type="number" value="1" min="1">
+                  <button class="quantity-btn" onclick="adjustQuantity(1)">+</button>
+                </div>
+              </div>
+              <button id="add-to-cart" class="btn-primary">
+                <i class="fas fa-cart-plus"></i> Agregar al carrito
+              </button>
+            </div>
+          </section>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <div class="floating-buttons">
+    <button id="open-cart" class="btn-cart">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="cart-count">0</span>
+    </button>
+    <button id="send-whatsapp" class="btn-whatsapp" data-whatsapp="5491123456789">
+      <i class="fa-brands fa-whatsapp fa-lg"></i>
+    </button>
+    
+  </div>
+
+  <!-- CART MODAL -->
+  <div id="cart-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <article class="modal-content cart-modal-content">
+      <button class="modal-close" aria-label="Cerrar carrito">
+        <i class="fas fa-times"></i>
+      </button>
+      <h2 class="cart-title">Tu Carrito</h2>
+      <div class="cart-container">
+        <div class="client-selector">
+          <label for="client-select">Cliente:</label>
+          <select id="client-select">
+            <option value="">Selecciona un cliente</option>
+          </select>
+        </div>
+        
+        <ul id="cart-items" class="cart-items"></ul>
+        <div class="cart-summary">
+          <div class="cart-total">
+            <span>Total:</span> 
+            <span id="cart-total" class="total-amount">$0.00</span>
+          </div>
+          <button id="cart-send" class="btn-primary btn-lg">
+            <i class="fab fa-whatsapp"></i> Enviar pedido por WhatsApp
+          </button>
+        </div>
+      </div>
+      <div class="empty-cart-message" id="empty-cart-message">
+        <i class="fas fa-shopping-cart"></i>
+        <p>Tu carrito está vacío</p>
+        <button class="btn-secondary" onclick="document.getElementById('cart-modal').classList.add('hidden')">
+          Seguir comprando
+        </button>
+      </div>
+    </article>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="choices.min.js"></script>
+  <script>
+    const hero = document.querySelector('.hero');
+    const heroHeight = hero.offsetHeight;
+
+    window.addEventListener('scroll', () => {
+      if (window.scrollY >= heroHeight) {
+        hero.classList.add('hide');
+      } else {
+        hero.classList.remove('hide');
+      }
+    });
+
+  </script>
+  
+</body>
+</html>
